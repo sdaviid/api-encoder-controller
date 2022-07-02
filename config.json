@@ -1,0 +1,5 @@
+{
+	"secret": "123456",
+	"database_schema": "sqlite://teste.db",
+	"default_port": 55001
+}
