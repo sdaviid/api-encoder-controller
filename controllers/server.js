@@ -9,6 +9,57 @@ const config = require('../config.json');
 const path = require('path');
 
 
+exports.status = async function(req, res){
+  try{
+    const resultStatusServer = await ServerModel.findAll();
+    if(resultStatusServer){
+      if(resultStatusServer.length>0){
+        service_auth.create_token('cli-web-encoder').then(function(response){
+          if(response.status == 200){
+            temp = [];
+            resultStatusServer.forEach(async function(item){
+              let desgracado = await service_encoder.list_line(item.uri, response.data.access_token).then(function(temp_line){
+                console.log(temp_line);
+                console.log(temp_line.pending_download);
+                temp.push({server: item.uri, pending_download: temp_line.pending_download});
+                console.log(temp_line);
+                return {server: item.uri, pending_download: temp_line.pending_download};
+              })
+              temp.push(desgracado);
+            });
+            res.status(200)
+              .json(
+                {
+                  status: 200,
+                  message: null,
+                  data: temp
+                }
+              )
+          }
+        })
+      }
+      
+    }else{
+      res.status(400)
+        .json(
+          {
+            status: 400,
+            message: 'couldnt get servers status'
+          }
+        )
+    }
+  }catch(err){
+    res.status(500)
+        .json(
+          {
+            status: 500,
+            message: 'Exception add server',
+            detail: err
+          }
+        )
+  }
+}
+
 exports.create = async function(req, res){
   console.log('create');
   const uri = req.body.uri;
