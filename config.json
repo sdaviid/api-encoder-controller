@@ -1,5 +1,8 @@
 {
 	"secret": "123456",
 	"database_schema": "sqlite://teste.db",
-	"default_port": 55001
+	"default_port": 55001,
+	"SERVER_USERNAME": "admin",
+	"SERVER_PASSWORD": "123456",
+	"SERVER_AUTH": "http://authenticate.playthis.site"
 }
