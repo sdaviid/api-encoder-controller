@@ -74,7 +74,7 @@ def status(
 ):
     temp_file = File.find_by_id(session=db, id=id)
     if temp_file:
-        temp_server = Server.find_by_id(session=db, id=temp_file.id)
+        temp_server = Server.find_by_id(session=db, id=temp_file.server)
         if temp_server:
             temp_status = status_file(name=temp_file.name, server_uri=temp_server.uri)
             if temp_status:
