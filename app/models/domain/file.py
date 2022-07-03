@@ -24,7 +24,7 @@ class File(ModelBase, Base):
     __tablename__ = "file"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String(255))
-    server = Column(integer)
+    server = Column(Integer)
     date_created = Column(DateTime, default=datetime.utcnow())
 
 
