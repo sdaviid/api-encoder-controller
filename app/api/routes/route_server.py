@@ -28,6 +28,9 @@ from app.api.deps import(
 )
 
 
+from app.service.server import check_server
+
+
 
 router = APIRouter()
 
@@ -43,12 +46,20 @@ def add(
     response: Response,
     db: Session = Depends(get_db)
 ):
-    temp_server = Server.add(session=db, data=data)
-    if temp_server:
-        return temp_server
+    if check_server(data.uri) == True:
+        temp_server = Server.add(session=db, data=data)
+        if temp_server:
+            return temp_server
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Failed add server"
+            )
     else:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Failed add server"
+            status_code=400,
+            detail="Failed add server - Server not respond to endpoint"
         )
+
+
 
