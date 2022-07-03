@@ -63,3 +63,15 @@ def add(
 
 
 
+
+@router.get(
+    '/list',
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(allow_create_resource)]
+)
+def list(
+    response: Response,
+    db: Session = Depends(get_db)
+):
+    return Server.list_all(session=db)
+
