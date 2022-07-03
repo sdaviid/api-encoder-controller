@@ -29,6 +29,18 @@ class File(ModelBase, Base):
 
 
     @classmethod
+    def add_file(cls, session, name, server):
+        file = File()
+        file.name = name
+        file.server = server
+        session.add(file)
+        session.commit()
+        session.refresh(file)
+        return File.find_by_id(session=session, id=file.id)
+
+
+
+    @classmethod
     def add(cls, session, data):
         file = File()
         file.name = data.name
@@ -37,4 +49,13 @@ class File(ModelBase, Base):
         session.commit()
         session.refresh(file)
         return File.find_by_id(session=session, id=file.id)
+
+
+    @classmethod
+    def find_by_id(cls, session, id):
+        try:
+            return session.query(File).filter_by(id=id).one()
+        except Exception as err:
+            print(f'model.file.find_by_id exception - {err}')
+        return False
 

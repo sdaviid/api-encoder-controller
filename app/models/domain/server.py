@@ -40,3 +40,14 @@ class Server(ModelBase, Base):
 
 
 
+    @classmethod
+    def find_by_id(cls, session, id):
+        try:
+            return session.query(Server).filter_by(id=id).one()
+        except Exception as err:
+            print(f'model.server.find_by_id exception - {err}')
+        return False
+
+
+
+

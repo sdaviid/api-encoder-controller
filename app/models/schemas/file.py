@@ -5,7 +5,6 @@ from app.models.schemas.base import baseSchema
 
 
 class FileAddUpload(baseSchema):
-    name: str
     url: str
 
 
@@ -20,5 +19,5 @@ class FileDetail(baseSchema):
     id: int
     name: str
     url: str
-    server: id
+    server: int
     date_created: datetime
