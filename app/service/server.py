@@ -50,22 +50,27 @@ def check_server(uri):
 def upload_server(uri):
     temp_servers = Server.list_all(session=SessionLocal())
     if temp_servers:
-        picked_server = random.choices(temp_servers)
+        picked_server = random.choices(temp_servers)[0]
         temp_token = create_token()
         payload = {
             'origin': uri
         }
-        try:
-            response = requests.post(picked_server.uri, json=payload, timeout=10)
-            if response.status_code == 200:
-                if response.json().get('status', False) == 200:
-                    temp_file = File.add_file(session=SessionLocal(), 
-                                                name=response.json()['data']['name'], 
-                                                server=picked_server.id
-                    )
-                    return temp_file
-        except Exception as err:
-            print(f'upload_server exception - {err}')
+        token = create_token()
+        if token:
+            try:
+                headers = {
+                    'token': token
+                }
+                response = requests.post(f'{picked_server.uri}:55001/api/file/create', json=payload, headers=headers, timeout=10)
+                if response.status_code == 200:
+                    if response.json().get('status', False) == 200:
+                        temp_file = File.add_file(session=SessionLocal(), 
+                                                    name=response.json()['data']['name'], 
+                                                    server=picked_server.id
+                        )
+                        return temp_file
+            except Exception as err:
+                print(f'upload_server exception - {err}')
     return False
 
 
