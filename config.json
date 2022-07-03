@@ -1,8 +1,0 @@
-{
-	"secret": "123456",
-	"database_schema": "sqlite://teste.db",
-	"default_port": 48550,
-	"SERVER_USERNAME": "admir",
-	"SERVER_PASSWORD": "123456",
-	"SERVER_AUTH": "https://authenticate.playthis.site"
-}
