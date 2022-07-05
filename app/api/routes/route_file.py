@@ -67,12 +67,47 @@ def add(
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(allow_create_resource)]
 )
-def status(
+def status_by_id(
     id: int,
     response: Response,
     db: Session = Depends(get_db)
 ):
     temp_file = File.find_by_id(session=db, id=id)
+    if temp_file:
+        temp_server = Server.find_by_id(session=db, id=temp_file.server)
+        if temp_server:
+            temp_status = status_file(name=temp_file.name, server_uri=temp_server.uri)
+            if temp_status:
+                return temp_status
+            else:
+                return {
+                    "error": True,
+                    "message": "Couldnt get status from file"
+                }
+        else:
+            return {
+                "error": True,
+                "message": "Couldnt get server"
+            }
+    else:
+        return {
+            "error": True,
+            "message": "Couldnt find file"
+        }
+
+
+
+@router.get(
+    '/status/{hash}',
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(allow_create_resource)]
+)
+def status_by_name(
+    hash: str,
+    response: Response,
+    db: Session = Depends(get_db)
+):
+    temp_file = File.find_by_name(session=db, name=hash)
     if temp_file:
         temp_server = Server.find_by_id(session=db, id=temp_file.server)
         if temp_server:

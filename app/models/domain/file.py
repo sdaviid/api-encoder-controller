@@ -59,3 +59,10 @@ class File(ModelBase, Base):
             print(f'model.file.find_by_id exception - {err}')
         return False
 
+    @classmethod
+    def find_by_name(cls, session, name):
+        try:
+            return session.query(File).filter_by(name=name).one()
+        except Exception as err:
+            print(f'model.file.find_by_name exception - {err}')
+        return False
