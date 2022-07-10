@@ -10,52 +10,82 @@ from app.models.domain.file import File
 from app.core.database import SessionLocal
 
 import random
-
-
-def create_token(client_id='cli-web-encoder'):
-    try:
-        headers = {
-            'Content-Type': 'multipart/form-data'
-        }
-        payload = {
-            'username': SERVER_USERNAME,
-            'password': SERVER_PASSWORD,
-            'client_id': client_id
-        }
-        response = requests.post(f'{SERVER_AUTH}/auth/token', data=payload, headers={}, timeout=10)
-        if response.status_code == 200:
-            return response.json()['access_token']
-    except Exception as err:
-        print(f'exception create token - {err}')
-    return False
+from threading import Thread
+import time
 
 
 
+class Servers(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self.server = []
+        self.iterator = self
+        self.index_server = 0
+    def update_server(self):
+        self.server = []
+        temp_servers = Server.list_all(session=SessionLocal())
+        if temp_servers:
+            for server in temp_servers:
+                self.server.append(server)
+    def __iter__(self):
+        self.index_server = 0
+    def __next__(self):
+        if self.index_server >= len(self.server):
+            self.index_server = 0
+        response = self.server[self.index_server]
+        self.index_server += 1
+        return response
+    def get_server(self):
+        return next(self.iterator)
+    def run(self):
+        while True:
+            self.update_server()
+            time.sleep(10)
 
-def check_server(uri):
-    token = create_token()
-    if token:
-        headers = {
-            'token': token
-        }
+
+
+class serverManager(object):
+    def __init__(self):
+        server = Servers()
+        server.start()
+        self.server = server
+    def create_token(self, client_id='cli-web-encoder'):
         try:
-            response = requests.get(f'{uri}:55001/api/file/list', headers=headers, timeout=10)
+            headers = {
+                'Content-Type': 'multipart/form-data'
+            }
+            payload = {
+                'username': SERVER_USERNAME,
+                'password': SERVER_PASSWORD,
+                'client_id': client_id
+            }
+            response = requests.post(f'{SERVER_AUTH}/auth/token', data=payload, headers={}, timeout=10)
             if response.status_code == 200:
-                return True
+                return response.json()['access_token']
         except Exception as err:
-            print(f'exception checkk server - {err}')
-    return False
+            print(f'exception create token - {err}')
+        return False
+    def check_server(self, uri):
+        token = self.create_token()
+        if token:
+            headers = {
+                'token': token
+            }
+            try:
+                response = requests.get(f'{uri}:55001/api/file/list', headers=headers, timeout=10)
+                if response.status_code == 200:
+                    return True
+            except Exception as err:
+                print(f'exception checkk server - {err}')
+        return False
 
 
-def upload_server(uri):
-    temp_servers = Server.list_all(session=SessionLocal())
-    if temp_servers:
-        picked_server = random.choices(temp_servers)[0]
-        temp_token = create_token()
+    def upload_server(self, uri):
+        picked_server = self.server.get_server()
         payload = {
             'origin': uri
         }
-        token = create_token()
+        token = self.create_token()
         if token:
             try:
                 headers = {
@@ -71,19 +101,29 @@ def upload_server(uri):
                         return temp_file
             except Exception as err:
                 print(f'upload_server exception - {err}')
-    return False
+        return False
 
 
-def status_file(name, server_uri):
-    token = create_token()
-    if token:
-        try:
-            headers = {
-                'token': token
-            }
-            response = requests.get(f'{server_uri}:55001/api/file/see?name={name}', headers=headers, timeout=10)
-            if response.status_code == 200:
-                return response.json().get('data', False)
-        except Exception as err:
-            print(f'service.server.status_file exception - {err}')
-    return False
+    def status_file(self, name, server_uri):
+        token = self.create_token()
+        if token:
+            try:
+                headers = {
+                    'token': token
+                }
+                response = requests.get(f'{server_uri}:55001/api/file/see?name={name}', headers=headers, timeout=10)
+                if response.status_code == 200:
+                    return response.json().get('data', False)
+            except Exception as err:
+                print(f'service.server.status_file exception - {err}')
+        return False
+
+
+instance_server_manager = serverManager()
+
+
+def get_instance_server_manager():
+    return instance_server_manager
+
+
+

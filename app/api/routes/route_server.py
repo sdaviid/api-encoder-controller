@@ -28,7 +28,7 @@ from app.api.deps import(
 )
 
 
-from app.service.server import check_server
+from app.service.server import get_instance_server_manager
 
 
 
@@ -46,7 +46,7 @@ def add(
     response: Response,
     db: Session = Depends(get_db)
 ):
-    if check_server(data.uri) == True:
+    if get_instance_server_manager().check_server(data.uri) == True:
         temp_server = Server.add(session=db, data=data)
         if temp_server:
             return temp_server

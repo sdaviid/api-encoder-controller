@@ -30,10 +30,7 @@ from app.api.deps import(
 )
 
 
-from app.service.server import(
-    upload_server,
-    status_file
-)
+from app.service.server import get_instance_server_manager
 
 
 router = APIRouter()
@@ -51,7 +48,7 @@ def add(
     response: Response,
     db: Session = Depends(get_db)
 ):
-    temp_upload = upload_server(data.url)
+    temp_upload = get_instance_server_manager().upload_server(data.url)
     if temp_upload:
         return temp_upload
     else:
@@ -111,7 +108,7 @@ def status_by_name(
     if temp_file:
         temp_server = Server.find_by_id(session=db, id=temp_file.server)
         if temp_server:
-            temp_status = status_file(name=temp_file.name, server_uri=temp_server.uri)
+            temp_status = get_instance_server_manager().status_file(name=temp_file.name, server_uri=temp_server.uri)
             if temp_status:
                 return temp_status
             else:
