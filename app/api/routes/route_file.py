@@ -73,7 +73,7 @@ def status_by_id(
     if temp_file:
         temp_server = Server.find_by_id(session=db, id=temp_file.server)
         if temp_server:
-            temp_status = status_file(name=temp_file.name, server_uri=temp_server.uri)
+            temp_status = get_instance_server_manager().status_file(name=temp_file.name, server_uri=temp_server.uri)
             if temp_status:
                 return temp_status
             else:
@@ -91,6 +91,41 @@ def status_by_id(
             "error": True,
             "message": "Couldnt find file"
         }
+
+
+@router.delete(
+    '/delete/{hash}',
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(allow_create_resource)]
+)
+def delete_by_name(
+    hash: str,
+    response: Response,
+    db: Session = Depends(get_db)
+):
+    temp_file = File.find_by_name(session=db, name=hash)
+    if temp_file:
+        temp_server = Server.find_by_id(session=db, id=temp_file.server)
+        if temp_server:
+            temp_status = get_instance_server_manager().delete_file(name=temp_file.name, server_uri=temp_server.uri)
+            if temp_status:
+                if File.delete(session=db, id=temp_file.id):
+                    return temp_status
+                else:
+                    return {
+                        "error": True,
+                        "message": "Failed delete id from database"
+                    }
+            else:
+                return {
+                    "error": True,
+                    "message": "Couldnt get server"
+                }
+        else:
+            return {
+                "error": True,
+                "message": "Couldnt find file"
+            }
 
 
 

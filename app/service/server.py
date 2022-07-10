@@ -119,6 +119,21 @@ class serverManager(object):
         return False
 
 
+    def delete_file(self, name, server_uri):
+        token = self.create_token()
+        if token:
+            try:
+                headers = {
+                    'token': token
+                }
+                response = requests.get(f'{server_uri}:55001/api/file/delete?name={name}', headers=headers, timeout=10)
+                if response.status_code == 200:
+                    return response.json().get('data', False)
+            except Exception as err:
+                print(f'service.server.status_file exception - {err}')
+        return False
+
+
 instance_server_manager = serverManager()
 
 
