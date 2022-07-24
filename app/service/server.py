@@ -72,8 +72,8 @@ class serverManager(object):
                 'token': token
             }
             try:
-                response = requests.get(f'{uri}:55001/api/file/list', headers=headers, timeout=10)
-                if response.status_code == 200:
+                response = requests.get(f'{uri}/api/file/list', headers=headers, timeout=10)
+                if response.status_code in (200, 204):
                     return True
             except Exception as err:
                 print(f'exception checkk server - {err}')
@@ -91,7 +91,7 @@ class serverManager(object):
                 headers = {
                     'token': token
                 }
-                response = requests.post(f'{picked_server.uri}:55001/api/file/create', json=payload, headers=headers, timeout=10)
+                response = requests.post(f'{picked_server.uri}/api/file/create', json=payload, headers=headers, timeout=10)
                 if response.status_code == 200:
                     if response.json().get('status', False) == 200:
                         temp_file = File.add_file(session=SessionLocal(), 
@@ -111,7 +111,7 @@ class serverManager(object):
                 headers = {
                     'token': token
                 }
-                response = requests.get(f'{server_uri}:55001/api/file/see?name={name}', headers=headers, timeout=10)
+                response = requests.get(f'{server_uri}/api/file/see?name={name}', headers=headers, timeout=10)
                 if response.status_code == 200:
                     return response.json().get('data', False)
             except Exception as err:
@@ -126,7 +126,7 @@ class serverManager(object):
                 headers = {
                     'token': token
                 }
-                response = requests.get(f'{server_uri}:55001/api/file/delete?name={name}', headers=headers, timeout=10)
+                response = requests.get(f'{server_uri}/api/file/delete?name={name}', headers=headers, timeout=10)
                 if response.status_code == 200:
                     return response.json().get('data', False)
             except Exception as err:
